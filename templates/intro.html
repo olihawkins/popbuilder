@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width">
+	<title>Population Builder: Welcome</title>
+	<link rel="stylesheet" type="text/css" href="/resources/styles/main.css" />
+	<style type="text/css">
+
+	#header img {
+		display: block;
+		margin: 0;
+		padding: 0;
+		margin-bottom: 1em;
+		border: 0;
+		border-radius: 20px;
+		height: auto;
+		width: 100%;
+	}
+
+	</style>
+</head>
+<body>
+	<div id="primary">
+		<div id="secondary">
+			<div id="column">
+				<h1>Population Builder</h1>
+				<div id="header"><img src="resources/graphics/header.png" alt="An example map from the application" /></div>
+				<p>Welcome to Population Builder, a web-app that lets you build a population estimate for a set of small areas in Great Britain.</p> 
+				<p>1. The boundaries appear automatically when the map is zoomed in.</p>
+				<p>2. Click or tap the areas of interest: the estimated population is shown in the top right.</p>
+				<p>3. Click or tap &ldquo;Get data&rdquo; to see the age-distribution.</p>
+				<p>4. Turn the boundaries on and off manually using the boundary control in the bottom right.</p>			
+				<form id="introform" method="post" style="float: left;">
+					<input type="checkbox" name="skipintro" checked />
+					<input type="hidden" name="posted" value="true" />
+				</form>
+				<p>Don't show this introduction next time.</p>
+				<p style="text-align: center;"><span class="go" onclick="document.getElementById('introform').submit();">Continue &rarr;</span></p>
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="resources/lib/leaflet/leaflet.js"></script>
+	<script type="text/javascript" src="resources/lib/d3/d3.min.js"></script>
+	<script type="text/javascript" src="resources/app/popbuilder.js"></script>
+	<script type="text/javascript" src="resources/app/bounds.json"></script>
+	<!-- Preload initial maps -->
+	<script type="text/javascript" src="resources/geojson/popzones/E09000001.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000007.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000013.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000020.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000022.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000023.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000028.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000030.json"></script>
+	<script type="text/javascript" src="resources/geojson/popzones/E09000033.json"></script>
+</body>
+</html>

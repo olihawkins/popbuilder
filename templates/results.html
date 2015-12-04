@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width">
+	<title>Population Builder</title>
+	<script type="text/javascript" src="resources/lib/leaflet/leaflet.js"></script>
+	<script type="text/javascript" src="resources/lib/d3/d3.min.js"></script>
+	<script type="text/javascript" src="resources/app/popbuilder.js"></script>
+	<link rel="stylesheet" type="text/css" href="/resources/styles/main.css" />
+	<style type="text/css">
+
+		.download {
+			font-weight: bold;
+			color: #800080;
+			text-decoration: underline;
+		}
+
+		.download:hover {
+			cursor: pointer;
+			color: #A090E0;
+		}
+
+		.key {
+			font-family: Helvetica, Arial, "Sans Serif";
+			font-size: 12pt;
+			font-weight: bold;
+		}
+
+		.keyleft {
+			width: 50%; 
+			float: left; 
+			text-align: left;
+			color: #A090E0;
+		}
+
+		.keyright {
+			width: 50%; 
+			float: right; 
+			text-align: right;
+			color: #800080;
+		}
+
+		#chart-container {
+			/* border: 1px solid #ccc; */
+			display: inline-block;
+			position: relative;
+			width: 100%;
+			padding-bottom: 80%;
+			vertical-align: middle;
+			overflow: hidden;
+		}
+
+		#chart {
+			display: inline-block;
+			position: absolute;
+			top: 0;
+			left: 0;
+		}
+
+		.axis line, .axis path {
+			shape-rendering: crispEdges;
+			fill: transparent;
+			stroke: #555;
+		}
+
+		.axis text {
+			font-family: sans-serif;
+			font-size: 15px;
+		}
+
+		.bar {
+			shape-rendering: crispEdges;
+			fill-opacity: 0.5;
+			stroke-opacity: 0.5;
+		}
+
+		.bar.leftcomparison {
+			fill-opacity: 0;
+			stroke-opacity: 1.0;
+			stroke: #000000;
+		}
+
+		.bar.rightcomparison {
+			fill-opacity: 0;
+			stroke-opacity: 1.0;
+			stroke: #000000;
+		}
+
+		.bar.left {
+			fill: #A090E0;
+			stroke: #A090E0;
+		}
+
+		.bar.right {
+			fill: #800080;
+			stroke: #800080;
+		}
+
+	</style>
+</head>
+<body>
+	<div id="primary">
+		<div id="secondary">
+			<div id="column">
+
+				<h1>Population Builder</h1>
+
+				<p style="text-align: center;">The selected population is <b>{{.Population}}</b>.</p>
+
+				<div id="chart-container">
+					<svg id="chart"></svg>
+				</div>
+
+				<script type="text/javascript">
+
+				/* Create the population pyramid. Adapted from jshanley's 
+				population pyramid on JS Bin (thanks jshanley):
+				http://jsbin.com/jalex/1/edit?js,output
+				Modifications include adjustments for responsive design, 
+				comparison bars, animation, and an x-axis scale that adapts 
+				better to variations in the data presented.  
+				*/
+
+				// Set up dimensions
+				var w = 600, 
+					h = 450;
+						
+				// margin.middle is distance from center line to each y-axis
+				var margin = {
+					top: 20,
+					right: 20,
+					bottom: 24,
+					left: 20,
+					middle: 28
+				};
+					
+				var figWidth = w + margin.left + margin.right;
+				var figHeight = h + margin.top + margin.bottom;
+				var viewBox = "0 0 " + figWidth + " " + figHeight;
+
+				// The width of each side of the chart
+				var regionWidth = w/2 - margin.middle;
+
+				// These are the x-coordinates of the y-axes
+				var pointA = regionWidth,
+					pointB = w - regionWidth;
+
+				// Data
+				var populationData = [
+					{group: '0-9', male:{{.M0}}, female:{{.F0}}},
+					{group: '10-19', male:{{.M10}}, female:{{.F10}}},
+					{group: '20-29', male:{{.M20}}, female:{{.F20}}},
+					{group: '30-39', male:{{.M30}}, female:{{.F30}}},
+					{group: '40-49', male:{{.M40}}, female:{{.F40}}},
+					{group: '50-59', male:{{.M50}}, female:{{.F50}}},
+					{group: '60-69', male:{{.M60}}, female:{{.F60}}},
+					{group: '70-79', male:{{.M70}}, female:{{.F70}}},
+					{group: '80-89', male:{{.M80}}, female:{{.F80}}},
+					{group: '90+', male:{{.M90}}, female:{{.F90}}},
+				];
+
+				var comparisonData = [
+					{group: '0-9', male: 3911015, female: 3727121},
+					{group: '10-19', male: 3660241, female: 3480021},
+					{group: '20-29', male: 4267830, female: 4190437},
+					{group: '30-39', male: 4035737, female: 4075679},
+					{group: '40-49', male: 4347555, female: 4457094},
+					{group: '50-59', male: 3983528, female: 4081887},
+					{group: '60-69', male: 3360398, female: 3530684},
+					{group: '70-79', male: 2172256, female: 2476374},
+					{group: '80-89', male: 997821, female: 1461804},
+					{group: '90+', male: 154514, female: 384258},
+				];
+
+				// Get the total population size and create a function for returning the percentage
+				var totalPopulation = d3.sum(populationData, function(d) { return d.male + d.female; }),
+						popPercentage = function(d) { return d / totalPopulation; };
+
+				var totalComparisonPopulation = d3.sum(comparisonData, function(d) { return d.male + d.female; }),
+						comPercentage = function(d) { return d / totalComparisonPopulation; };
+
+				// Create the SVG
+				var svg = d3.select('#chart')
+					.attr("viewBox", viewBox)
+					// Add a group for the space between the margins
+					.append('g')
+						.attr('transform', translation(margin.left, margin.top));
+
+				// Find the maximum data value on either side
+				var maxValue = Math.max(
+					d3.max(comparisonData, function(d) { return comPercentage(d.male); }),
+					d3.max(comparisonData, function(d) { return comPercentage(d.female); }),
+					d3.max(populationData, function(d) { return popPercentage(d.male); }),
+					d3.max(populationData, function(d) { return popPercentage(d.female); })
+				);
+
+				// Calculate the increment and the upper bound for the scales
+				var tickCount = 7;
+				var increment = (Math.ceil((maxValue*100) / tickCount)) / 100;
+				var remainder = maxValue % increment;
+				var upperBound = (maxValue - remainder) + increment;
+
+				// Build the tick list
+				var tickList = [0.0];
+				var nextTick = 0.0;
+
+				while (nextTick < upperBound) {
+
+					nextTick += increment;
+					tickList.push(nextTick);
+				}
+
+				// Set up the scales. The xScale goes from 0 to the width of a region.
+				// It will be reversed for the left x-axis.
+				var xScale = d3.scale.linear()
+					.domain([0, upperBound])
+					.range([0, regionWidth]);
+
+				var xScaleLeft = d3.scale.linear()
+					.domain([0, upperBound])
+					.range([regionWidth, 0]);
+
+				var xScaleRight = d3.scale.linear()
+					.domain([0, upperBound])
+					.range([0, regionWidth]);
+
+				var yScale = d3.scale.ordinal()
+					.domain(populationData.map(function(d) { return d.group; }))
+					.rangeRoundBands([h,0], 0.1);
+
+				// Set up axes
+				var yAxisLeft = d3.svg.axis()
+					.scale(yScale)
+					.orient('right')
+					.tickSize(4,0)
+					.tickPadding(margin.middle-4);
+
+				var yAxisRight = d3.svg.axis()
+					.scale(yScale)
+					.orient('left')
+					.tickSize(4,0)
+					.tickFormat('');
+
+				var xAxisRight = d3.svg.axis()
+					.scale(xScale)
+					.orient('bottom')
+					.tickValues(tickList)
+					.tickFormat(d3.format('%'));
+
+				var xAxisLeft = d3.svg.axis()
+					// Reverse the x-axis scale on the left side by reversing the range
+					.scale(xScale.copy().range([pointA, 0]))
+					.orient('bottom')
+					.tickValues(tickList)
+					.tickFormat(d3.format('%'));
+
+				// Make groups for each side of the chart
+				// Scale(-1,1) is used to reverse the left side so the bars grow left instead of right
+				var leftBarGroup = svg.append('g')
+					.attr('transform', translation(pointA, 0) + 'scale(-1,1)');
+				var rightBarGroup = svg.append('g')
+					.attr('transform', translation(pointB, 0));
+
+				var leftBarComparisonGroup = svg.append('g')
+					.attr('transform', translation(pointA, 0) + 'scale(-1,1)');
+				var rightBarComparisonGroup = svg.append('g')
+					.attr('transform', translation(pointB, 0));
+
+				// Draw axes
+				svg.append('g')
+					.attr('class', 'axis y left')
+					.attr('transform', translation(pointA, 0))
+					.call(yAxisLeft)
+					.selectAll('text')
+					.style('text-anchor', 'middle');
+
+				svg.append('g')
+					.attr('class', 'axis y right')
+					.attr('transform', translation(pointB, 0))
+					.call(yAxisRight);
+
+				svg.append('g')
+					.attr('class', 'axis x left')
+					.attr('transform', translation(0, h))
+					.call(xAxisLeft);
+
+				svg.append('g')
+					.attr('class', 'axis x right')
+					.attr('transform', translation(pointB, h))
+					.call(xAxisRight);
+
+				// Draw bars
+				leftBarComparisonGroup.selectAll('.bar.leftcomparison')
+					.data(comparisonData)
+					.enter().append('rect')
+						.attr('class', 'bar leftcomparison')
+						.attr('x', 0)
+						.attr('y', function(d) { return yScale(d.group); })
+						.attr('width', function(d) { return xScale(comPercentage(d.male)); })
+						.attr('height', yScale.rangeBand());
+
+				rightBarComparisonGroup.selectAll('.bar.rightcomparison')
+					.data(comparisonData)
+					.enter().append('rect')
+						.attr('class', 'bar rightcomparison')
+						.attr('x', 0)
+						.attr('y', function(d) { return yScale(d.group); })
+						.attr('width', function(d) { return xScale(comPercentage(d.female)); })
+						.attr('height', yScale.rangeBand());
+
+				leftBarGroup.selectAll('.bar.left')
+					.data(populationData)
+					.enter().append('rect')
+						.attr('class', 'bar left')
+						.attr('x', 0)
+						.attr('y', function(d) { return yScale(d.group); })
+						.attr('width', function(d) { return xScale(popPercentage(0)); })
+						.attr('height', yScale.rangeBand());
+
+				rightBarGroup.selectAll('.bar.right')
+					.data(populationData)
+					.enter().append('rect')
+						.attr('class', 'bar right')
+						.attr('x', 0)
+						.attr('y', function(d) { return yScale(d.group); })
+						.attr('width', function(d) { return xScale(popPercentage(0)); })
+						.attr('height', yScale.rangeBand());
+
+				// Use string concatenation for translations
+				function translation(x,y) {
+					return 'translate(' + x + ',' + y + ')';
+				}
+
+				// Animate the bars
+				leftBarGroup.selectAll('.bar.left')
+					.data(populationData)
+					.transition()
+					.duration(2000)
+					.attr('width', function(d) { return xScale(popPercentage(d.male)); })
+
+				rightBarGroup.selectAll('.bar.right')
+					.data(populationData)
+					.transition()
+					.duration(2000)
+					.attr('width', function(d) { return xScale(popPercentage(d.female)); })
+
+				// Sends the selected areas to the download page
+				function downloadData() {
+
+					var postParameters = {zones: '{{.Zones}}'};
+					var downloadPage = 'download';
+					pb.submitForm(downloadPage, postParameters);
+				};
+
+				</script>
+				<div style="padding-bottom: 2em;">
+					<div class="key keyleft">Male</div>
+					<div class="key keyright">Female</div>
+				</div>
+				<p>The coloured bars show the age distribution of the selected population. The outline bars show the age distribution of Great Britain. Population estimates are for mid-2014.</p> 
+				<p style="text-align: center; margin-bottom: 1em;"><span class="download" onclick="downloadData();">Download the data</span></p>
+				<p style="border-top: 1pt solid #C0C0C0; margin-bottom: 1em;"></p>
+				<h2>About</h2>
+				<p>Population Builder uses open data and open-source software.</p>
+				<p>In England and Wales the population areas are Lower Layer Super Output Areas. Population estimates are taken from the Office for National Statistics <a href="http://www.ons.gov.uk/ons/rel/sape/small-area-population-estimates/mid-2014-and-mid-2013/index.html">Small Area Population Estimates</a>. Adapted from data from the <a href="http://www.ons.gov.uk/ons/site-information/information/creative-commons-license/index.html">Office for National Statistics</a> licensed under the Open Government Licence v.3.0.</p>
+				<p>In Scotland the population areas are Data Zones. Population estimates are taken from the National Records of Scotland <a href="http://www.nrscotland.gov.uk/statistics-and-data/statistics/statistics-by-theme/population/population-estimates/2011-based-special-area-population-estimates/small-area-population-estimates/mid-2011-to-mid-2014">Small Area Population Estimates Scotland</a>. Adapted from data from the <a href="http://www.nrscotland.gov.uk/copyright-and-disclaimer">National Records of Scotland</a> licensed under the Open Government Licence v.3.0.</p>
+				<p>Across Great Britain the map boundaries contain Ordnance Survey data &copy; Crown copyright and database right 2013.</p>
+				<p>The map layer uses data from <a href="http://www.openstreetmap.org/#map=5/51.500/-0.100">OpenStreetMap</a> and tiles from <a href="https://www.mapbox.com/">Mapbox</a>. The application uses the <a href="http://leafletjs.com/">Leaflet</a> and <a href="http://d3js.org/">D3</a> JavaScript libraries and the <a href="https://www.sqlite.org">SQLite</a> database.</p>
+				<p>Developed by <a href="http://olihawkins.com">Oliver Hawkins</a>.</p>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

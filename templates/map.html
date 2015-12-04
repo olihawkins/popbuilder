@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Population Builder</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<link rel="stylesheet" href="resources/lib/leaflet/leaflet.css" />
+
+<style type="text/css">
+
+body {
+	padding: 0;
+	margin: 0;
+}
+
+html, body, #map {
+	height: 100%;
+}
+
+.popinfo {
+	padding: 6px 8px;
+	font: 14px/16px Arial, Helvetica, sans-serif;
+	background: white;
+	background: rgba(255,255,255,0.8);
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	border-radius: 5px;
+	text-align: center;
+}
+
+.popinfo h4 {
+	margin: 0 0 5px;
+	padding: 0;
+	color: #777;
+}
+
+.popinfo p {
+	margin: 5px 0 0;
+	padding: 0;
+}
+
+.popinfo span.data {
+	font-weight: bold;
+	color: #A000A0;
+	cursor: pointer;
+}
+
+.popinfo span.number {
+	font-weight: bold;
+}
+
+.overlaycontrol {
+	padding: 6px 8px;
+	font: 14px/16px Arial, Helvetica, sans-serif;
+	background: white;
+	background: rgba(255,255,255,0.8);
+	box-shadow: 0 0 15px rgba(0,0,0,0.2);
+	border-radius: 5px;
+	text-align: center;
+}
+
+.overlaycontrol h4 {
+	margin: 0 0 5px;
+	color: #777;
+}
+
+.overlaycontrol span.state {
+	font-weight: bold;
+	color: #A000A0;
+	cursor: pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div id="map"></div>
+<script type="text/javascript" src="resources/lib/leaflet/leaflet.js"></script>
+<script type="text/javascript" src="resources/lib/d3/d3.min.js"></script>
+<script type="text/javascript" src="resources/app/popbuilder.js"></script>
+<script type="text/javascript">pb.launch();</script>
+</body>
+</html>
