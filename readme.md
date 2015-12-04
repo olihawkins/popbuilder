@@ -7,7 +7,7 @@ The areas used in the application are Lower Layer Super Output Areas (LSOAs) in 
 
 ### Technology
 
-The server side of the application is written in [Go][go], while the client-side uses [Leaflet.js][lf] and [D3][d3]. By default the application uses map tiles from [OpenStreetMap][os], but the application JavaScript file popbuilder.js also contains the code to use [Mapbox][mb] as the tile server instead. The code for using Mapbox is commented out. To use it simply uncomment the code, add your Mapbox API key details where indicated, and then remove or comment out the default OpenStreetMap code. The population data is stored on the server in two [SQLite][sl] databases.
+The server side of the application is written in [Go][go], while the client side uses [Leaflet.js][lf] and [D3][d3]. By default the application uses map tiles from [OpenStreetMap][os], but the application JavaScript file popbuilder.js also contains the code to use [Mapbox][mb] as the tile server instead. The code for using Mapbox is commented out. To use it simply uncomment the code, add your Mapbox API key details where indicated, and then remove or comment out the default OpenStreetMap code. The population data is stored on the server in two [SQLite][sl] databases.
 
 ### Development status
 
@@ -26,7 +26,7 @@ Type `popbuilder` in the application directory to start the application on port 
 Use `go test` to run the tests.
 
 ### Documentation
-See the [GoDoc][gd] for the full documentation.
+See the [GoDoc][gd] for the documentation.
 
    [pb]: <http://olihawkins.com/projects/popbuilder>
    [go]: <https://golang.org/>
