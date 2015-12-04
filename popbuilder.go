@@ -1,8 +1,7 @@
 /*
 Package popbuilder is the server component of the Popbuilder application,
 a web-app that allows the user to build a population estimate for an 
-arbitrary set of small areas in Great Britain. The package is entirely
-self-contained so no methods are exported.
+arbitrary set of small areas in Great Britain.
 */
 package main
 
