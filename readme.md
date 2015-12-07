@@ -20,7 +20,7 @@ Install the package with `go get`.
 go get github.com/olihawkins/popbuilder
 ```
 
-Type `popbuilder` in the application directory to start the application on port 3000. Go to http://localhost:3000 in a web browser to use it.
+To start the application, run `popbuilder` in the source directory: `$GOPATH/src/github.com/olihawkins/popbuilder`. This will start the server listening on port 3000. Go to http://localhost:3000 in a web browser to use it.
 
 ### Tests
 Use `go test` to run the tests.

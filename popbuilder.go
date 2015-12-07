@@ -24,8 +24,8 @@ import (
 // Define package constants
 const (
 
-	sep string = string(filepath.Separator)
 	baseUrl string = "/"
+	sep string = string(filepath.Separator)
 
 	dbDir string = "db"
 	templateDir string = "templates"
@@ -504,6 +504,10 @@ func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 
+	// Set the port number
+	portNumber := 3000
+	portString := fmt.Sprint(":", portNumber)
+
 	// Create a ResultsDb for the results page
 	resultsDb := NewResultsDb(resultsDbPath)
 	defer resultsDb.Close()
@@ -526,7 +530,8 @@ func main() {
 	http.Handle("/resources/", fileHandler)
 
 	// Start server
-	err := http.ListenAndServe(":3000", nil)
+	log.Print("Server starting on port ", portNumber, " ...")
+	err := http.ListenAndServe(portString, nil)
 
 	if err != nil {
 		log.Fatal(err)
