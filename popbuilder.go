@@ -18,7 +18,7 @@ import (
 	"github.com/olihawkins/decimals"
 	"github.com/olihawkins/handlers"
 	htmlTemplate "html/template"
-	textTemplate "html/template"
+	textTemplate "text/template"
 )
 
 // Define package constants
