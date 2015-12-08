@@ -290,7 +290,6 @@ func (h *ResultsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-
 		templateData.Zones = zonestr 
 		h.template.Execute(w, templateData)
 	
