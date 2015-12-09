@@ -1,5 +1,5 @@
 /*
-Package popbuilder is the server component of the Popbuilder application,
+Package popbuilder is the server component of the popbuilder application,
 a web-app that allows the user to build a population estimate for an 
 arbitrary set of small areas in Great Britain.
 */
