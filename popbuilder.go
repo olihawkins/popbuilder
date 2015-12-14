@@ -29,6 +29,7 @@ const (
 
 	dbDir string = "db"
 	templateDir string = "templates"
+	resourcesDir string = "resources"
 
 	resultsDbPath string = dbDir + sep + "popzones-10.db"
 	downloadDbPath string = dbDir + sep + "popzones-5.db"
@@ -525,7 +526,7 @@ func main() {
 	http.Handle("/download", NewDownloadHandler(downloadPath, downloadDb, errorHandler))
 
 	// Create a filehandler to a static directory
-	fileHandler := handlers.NewFileHandler("/resources/", "./resources", notFoundHandler)
+	fileHandler := handlers.NewFileHandler("/resources/", resourcesDir, notFoundHandler)
 	http.Handle("/resources/", fileHandler)
 
 	// Start server
