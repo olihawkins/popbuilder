@@ -15,7 +15,7 @@ import (
 // Test HomeHandler with all possible inputs
 func TestHomeHandler(t *testing.T) {
 
-	var(
+	var (
 		h *HomeHandler
 		notFoundHandler *handlers.NotFoundHandler
 		err error
@@ -269,7 +269,7 @@ func TestResultsDbGetPopulationData(t *testing.T) {
 // This test implicitly tests NewResultsHandler().
 func TestResultsHandler(t *testing.T) {
 
-	var(
+	var (
 		h *ResultsHandler
 		resultsDb *ResultsDb
 		errorHandler *handlers.ErrorHandler
@@ -434,7 +434,7 @@ func TestDownloadDbGetPopulationData(t *testing.T) {
 // This test implicitly tests NewResultsHandler().
 func TestDownloadHandler(t *testing.T) {
 
-	var(
+	var (
 		h *DownloadHandler
 		downloadDb *DownloadDb
 		errorHandler *handlers.ErrorHandler
