@@ -3,4 +3,4 @@ production
 
 # Files
 .DS_Store
-resources/app/popbuilder-local.js
+resources/app/popbuilder-mapbox.js
