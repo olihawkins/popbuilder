@@ -1,63 +1,61 @@
 /*
 Package popbuilder is the server component of the popbuilder application,
-a web-app that allows the user to build a population estimate for an 
+a web-app that allows the user to build a population estimate for an
 arbitrary set of small areas in Great Britain.
 */
 package main
 
 import (
-	"log"
-	"fmt"
-	"time"
-	"strings"
-	"io/ioutil"
-	"path/filepath"
-	"net/http"
 	"database/sql"
+	"fmt"
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/olihawkins/decimals"
 	"github.com/olihawkins/handlers"
 	htmlTemplate "html/template"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"path/filepath"
+	"strings"
 	textTemplate "text/template"
+	"time"
 )
 
 // Define package constants
 const (
-
 	baseUrl string = "/"
-	sep string = string(filepath.Separator)
+	sep     string = string(filepath.Separator)
 
-	dbDir string = "db"
-	templateDir string = "templates"
+	dbDir        string = "db"
+	templateDir  string = "templates"
 	resourcesDir string = "resources"
 
-	resultsDbPath string = dbDir + sep + "popzones-10.db"
+	resultsDbPath  string = dbDir + sep + "popzones-10.db"
 	downloadDbPath string = dbDir + sep + "popzones-5.db"
 
-	introPath string = templateDir + sep + "intro.html"
-	mapPath string = templateDir + sep + "map.html"
-	resultsPath string = templateDir + sep + "results.html"
+	introPath    string = templateDir + sep + "intro.html"
+	mapPath      string = templateDir + sep + "map.html"
+	resultsPath  string = templateDir + sep + "results.html"
 	downloadPath string = templateDir + sep + "download.txt"
-	
-	notFoundPath string = templateDir + sep + "notfound.html"
-	errorPath string = templateDir + sep + "error.html"
+
+	notFoundPath        string = templateDir + sep + "notfound.html"
+	errorPath           string = templateDir + sep + "error.html"
 	defaultErrorMessage string = "Sorry! An error has occurred."
 )
 
 // HomeHandler implements http.Handler and serves requests for the homepage.
 type HomeHandler struct {
-
-	introPage []byte
-	mapPage []byte
-	seenCookie string
-	skipCookie string
-	postedForm string
-	skipForm string
+	introPage       []byte
+	mapPage         []byte
+	seenCookie      string
+	skipCookie      string
+	postedForm      string
+	skipForm        string
 	notFoundHandler *handlers.NotFoundHandler
 }
 
 // HomeHandler returns a new homeHandler with the handler values initialised.
-func NewHomeHandler(introPath string, mapPath string, 
+func NewHomeHandler(introPath string, mapPath string,
 	notFoundHandler *handlers.NotFoundHandler) *HomeHandler {
 
 	// Load the intro page
@@ -76,12 +74,12 @@ func NewHomeHandler(introPath string, mapPath string,
 
 	return &HomeHandler{
 
-		introPage: introPage,
-		mapPage: mapPage,
-		seenCookie: "seen",
-		skipCookie: "skip",
-		postedForm: "posted",
-		skipForm: "skipintro",
+		introPage:       introPage,
+		mapPage:         mapPage,
+		seenCookie:      "seen",
+		skipCookie:      "skip",
+		postedForm:      "posted",
+		skipForm:        "skipintro",
 		notFoundHandler: notFoundHandler,
 	}
 }
@@ -121,15 +119,13 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, baseUrl, http.StatusFound)
 		return
 
-	// If the form was not posted, check if the intro should be skipped
 	} else {
 
-		// If skipCookie has been set, send the map
+		// If the form was not posted, check if the intro should be skipped
 		if _, err := r.Cookie(h.skipCookie); err == nil {
 
 			page = h.mapPage
 
-		// Otherwise ...
 		} else {
 
 			// If seenCookie is set, set it to expired and send the map
@@ -139,9 +135,9 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				http.SetCookie(w, seenCookie)
 				page = h.mapPage
 
-			// Otherwise, send the intro
 			} else {
 
+				// Otherwise, send the intro
 				page = h.introPage
 			}
 		}
@@ -154,17 +150,15 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // ResultsData holds population data for a set of zones for the results page.
 type ResultsData struct {
-
 	Population string
-	Zones string
+	Zones      string
 	M0, M10, M20, M30, M40, M50, M60, M70, M80, M90,
 	F0, F10, F20, F30, F40, F50, F60, F70, F80, F90 int64
 }
 
 // ResultsDb encapsulates the sqlite database used by resultsHandler.
 type ResultsDb struct {
-
-	db *sql.DB
+	db        *sql.DB
 	baseQuery string
 }
 
@@ -222,23 +216,23 @@ func (r *ResultsDb) GetPopulationData(zones []string) (*ResultsData, error) {
 
 	// Execute the query and scan the results
 	err := r.db.QueryRow(query, args...).Scan(
-		&m0, &m10, &m20, &m30, &m40, &m50, &m60, &m70, &m80, &m90, 
+		&m0, &m10, &m20, &m30, &m40, &m50, &m60, &m70, &m80, &m90,
 		&f0, &f10, &f20, &f30, &f40, &f50, &f60, &f70, &f80, &f90)
-	
+
 	if err != nil {
 		return nil, err
 	}
 
 	// Calculate the total population
-	population := 
-		m0 + m10 + m20 + m30 + m40 + m50 + m60 + m70 + m80 + m90 + 
-		f0 + f10 + f20 + f30 + f40 + f50 + f60 + f70 + f80 + f90 
+	population :=
+		m0 + m10 + m20 + m30 + m40 + m50 + m60 + m70 + m80 + m90 +
+			f0 + f10 + f20 + f30 + f40 + f50 + f60 + f70 + f80 + f90
 
 	results := &ResultsData{
 		Population: decimals.FormatThousands(population),
-		M0: m0, M10: m10, M20: m20, M30: m30, M40: m40, 
-		M50: m50, M60: m60, M70: m70, M80: m80, M90: m90, 
-		F0: f0, F10: f10, F20: f20, F30: f30, F40: f40, 
+		M0:         m0, M10: m10, M20: m20, M30: m30, M40: m40,
+		M50: m50, M60: m60, M70: m70, M80: m80, M90: m90,
+		F0: f0, F10: f10, F20: f20, F30: f30, F40: f40,
 		F50: f50, F60: f60, F70: f70, F80: f80, F90: f90,
 	}
 
@@ -247,15 +241,14 @@ func (r *ResultsDb) GetPopulationData(zones []string) (*ResultsData, error) {
 
 // ResultsHandler handles requests sent to the results page.
 type ResultsHandler struct {
-
-	rdb *ResultsDb
+	rdb          *ResultsDb
 	errorHandler *handlers.ErrorHandler
-	template *htmlTemplate.Template
-	zoneForm string
+	template     *htmlTemplate.Template
+	zoneForm     string
 }
 
 // NewResultsHandler returns a new ResultsHandler with the values initialised.
-func NewResultsHandler(templatePath string, database *ResultsDb, 
+func NewResultsHandler(templatePath string, database *ResultsDb,
 	errorHandler *handlers.ErrorHandler) *ResultsHandler {
 
 	templateFile, err := htmlTemplate.ParseFiles(templatePath)
@@ -266,15 +259,15 @@ func NewResultsHandler(templatePath string, database *ResultsDb,
 
 	return &ResultsHandler{
 
-		rdb: database,
+		rdb:          database,
 		errorHandler: errorHandler,
-		template: templateFile,
-		zoneForm: "zones",
+		template:     templateFile,
+		zoneForm:     "zones",
 	}
 }
 
 // ServeHTTP expects a list of area codes for population zones as POST data.
-// The population data for the given areas is retrieved from a sqlite database 
+// The population data for the given areas is retrieved from a sqlite database
 // and is inserted into the template for display in a d3 population pyramid.
 func (h *ResultsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
@@ -284,40 +277,38 @@ func (h *ResultsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		templateData, err := h.rdb.GetPopulationData(zones)
 
 		if err != nil {
-			
-			h.errorHandler.ServeError(w, 
+
+			h.errorHandler.ServeError(w,
 				"Could not get population data from the ResultsDb.")
 
 			return
 		}
 
-		templateData.Zones = zonestr 
+		templateData.Zones = zonestr
 		h.template.Execute(w, templateData)
-	
+
 	} else {
 
 		http.Redirect(w, r, baseUrl, http.StatusFound)
 	}
-	
+
 	return
 }
 
 // DownloadData holds population data for each zone for the download page.
 type DownloadData struct {
-
 	Code string
-	P0, P5, P10, P15, P20, P25, P30, P35, P40, P45, 
+	P0, P5, P10, P15, P20, P25, P30, P35, P40, P45,
 	P50, P55, P60, P65, P70, P75, P80, P85, P90,
-	M0, M5, M10, M15, M20, M25, M30, M35, M40, M45, 
+	M0, M5, M10, M15, M20, M25, M30, M35, M40, M45,
 	M50, M55, M60, M65, M70, M75, M80, M85, M90,
-	F0, F5, F10, F15, F20, F25, F30, F35, F40, F45, 
+	F0, F5, F10, F15, F20, F25, F30, F35, F40, F45,
 	F50, F55, F60, F65, F70, F75, F80, F85, F90 int64
 }
 
 // DownloadDb encapsulates the sqlite database used by DownloadHandler
 type DownloadDb struct {
-
-	db *sql.DB
+	db        *sql.DB
 	baseQuery string
 }
 
@@ -363,11 +354,11 @@ func (d *DownloadDb) GetPopulationData(zones []string) ([]*DownloadData, error) 
 	// Declare variables to hold query results
 	var code string
 	var row *DownloadData
-	var p0, p5, p10, p15, p20, p25, p30, p35, p40, p45, 
+	var p0, p5, p10, p15, p20, p25, p30, p35, p40, p45,
 		p50, p55, p60, p65, p70, p75, p80, p85, p90,
-		m0, m5, m10, m15, m20, m25, m30, m35, m40, m45, 
+		m0, m5, m10, m15, m20, m25, m30, m35, m40, m45,
 		m50, m55, m60, m65, m70, m75, m80, m85, m90,
-		f0, f5, f10, f15, f20, f25, f30, f35, f40, f45, 
+		f0, f5, f10, f15, f20, f25, f30, f35, f40, f45,
 		f50, f55, f60, f65, f70, f75, f80, f85, f90 int64
 
 	// Build the query string and an interface slice of args to pass to Query
@@ -384,7 +375,7 @@ func (d *DownloadDb) GetPopulationData(zones []string) ([]*DownloadData, error) 
 
 	// Execute the query and scan the results
 	rows, err := d.db.Query(query, args...)
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -396,40 +387,40 @@ func (d *DownloadDb) GetPopulationData(zones []string) ([]*DownloadData, error) 
 
 	// Scan the results
 	for rows.Next() {
-		
+
 		err := rows.Scan(
-			&code, &p0, &p5, &p10, &p15, &p20, &p25, &p30, &p35, &p40, &p45, 
+			&code, &p0, &p5, &p10, &p15, &p20, &p25, &p30, &p35, &p40, &p45,
 			&p50, &p55, &p60, &p65, &p70, &p75, &p80, &p85, &p90,
-			&m0, &m5, &m10, &m15, &m20, &m25, &m30, &m35, &m40, &m45, 
+			&m0, &m5, &m10, &m15, &m20, &m25, &m30, &m35, &m40, &m45,
 			&m50, &m55, &m60, &m65, &m70, &m75, &m80, &m85, &m90,
-			&f0, &f5, &f10, &f15, &f20, &f25, &f30, &f35, &f40, &f45, 
+			&f0, &f5, &f10, &f15, &f20, &f25, &f30, &f35, &f40, &f45,
 			&f50, &f55, &f60, &f65, &f70, &f75, &f80, &f85, &f90)
-		
+
 		if err != nil {
 			return nil, err
 		}
 
 		row = &DownloadData{
 			Code: code,
-			P0: p0, P5: p5, P10: p10, P15: p15, P20: p20, 
-			P25: p25, P30: p30, P35: p35, P40: p40, P45: p45, 
+			P0:   p0, P5: p5, P10: p10, P15: p15, P20: p20,
+			P25: p25, P30: p30, P35: p35, P40: p40, P45: p45,
 			P50: p50, P55: p55, P60: p60, P65: p65, P70: p70,
 			P75: p75, P80: p80, P85: p85, P90: p90,
-			M0: m0, M5: m5, M10: m10, M15: m15, M20: m20, 
-			M25: m25, M30: m30, M35: m35, M40: m40, M45: m45, 
+			M0: m0, M5: m5, M10: m10, M15: m15, M20: m20,
+			M25: m25, M30: m30, M35: m35, M40: m40, M45: m45,
 			M50: m50, M55: m55, M60: m60, M65: m65, M70: m70,
-			M75: m75, M80: m80, M85: m85, M90: m90,	
-			F0: f0, F5: f5, F10: f10, F15: f15, F20: f20, 
-			F25: f25, F30: f30, F35: f35, F40: f40, F45: f45, 
+			M75: m75, M80: m80, M85: m85, M90: m90,
+			F0: f0, F5: f5, F10: f10, F15: f15, F20: f20,
+			F25: f25, F30: f30, F35: f35, F40: f40, F45: f45,
 			F50: f50, F55: f55, F60: f60, F65: f65, F70: f70,
-			F75: f75, F80: f80, F85: f85, F90: f90,	
+			F75: f75, F80: f80, F85: f85, F90: f90,
 		}
 
 		results = append(results, row)
 	}
 
 	err = rows.Err()
-	
+
 	if err != nil {
 		return nil, err
 	}
@@ -439,15 +430,14 @@ func (d *DownloadDb) GetPopulationData(zones []string) ([]*DownloadData, error) 
 
 // DownloadHandler handles requests sent to the results page.
 type DownloadHandler struct {
-
-	ddb *DownloadDb
+	ddb          *DownloadDb
 	errorHandler *handlers.ErrorHandler
-	template *textTemplate.Template
-	zoneForm string
+	template     *textTemplate.Template
+	zoneForm     string
 }
 
 // DownloadHandler returns a new homeHandler with the values initialised.
-func NewDownloadHandler(templatePath string, database *DownloadDb, 
+func NewDownloadHandler(templatePath string, database *DownloadDb,
 	errorHandler *handlers.ErrorHandler) *DownloadHandler {
 
 	templateFile, err := textTemplate.ParseFiles(templatePath)
@@ -458,15 +448,15 @@ func NewDownloadHandler(templatePath string, database *DownloadDb,
 
 	return &DownloadHandler{
 
-		ddb: database,
+		ddb:          database,
 		errorHandler: errorHandler,
-		template: templateFile,
-		zoneForm: "zones",
+		template:     templateFile,
+		zoneForm:     "zones",
 	}
 }
 
 // ServeHTTP expects a list of area codes for population zones as POST data.
-// The population data for the given areas is retrieved from a sqlite database 
+// The population data for the given areas is retrieved from a sqlite database
 // and is sent to the browser as a csv download.
 func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
@@ -476,8 +466,8 @@ func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		templateData, err := h.ddb.GetPopulationData(zones)
 
 		if err != nil {
-			
-			h.errorHandler.ServeError(w, 
+
+			h.errorHandler.ServeError(w,
 				"Could not get population data from the DownloadDb.")
 
 			return
@@ -487,18 +477,18 @@ func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Disposition", "attachment; filename=download.csv")
 		w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 
-		// These headers are needed for the download to work in older versions 
+		// These headers are needed for the download to work in older versions
 		// of IE. Add a user-agent check if this causes problems in other browsers.
 		w.Header().Set("Cache-Control", "must-revalidate, post-check=0, pre-check=0")
 		w.Header().Set("Pragma", "public")
 
 		h.template.Execute(w, templateData)
-	
+
 	} else {
 
 		http.Redirect(w, r, baseUrl, http.StatusFound)
 	}
-	
+
 	return
 }
 

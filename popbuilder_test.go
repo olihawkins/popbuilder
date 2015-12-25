@@ -1,35 +1,35 @@
 package main
 
 import (
-	"testing"
-	"time"
-	"strings"
-	"strconv"
+	"github.com/olihawkins/handlers"
 	"io/ioutil"
-	"net/url"
 	"net/http"
 	"net/http/httptest"
-	"github.com/olihawkins/handlers"
+	"net/url"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
 )
 
 // Test HomeHandler with all possible inputs
 func TestHomeHandler(t *testing.T) {
 
 	var (
-		h *HomeHandler
+		h               *HomeHandler
 		notFoundHandler *handlers.NotFoundHandler
-		err error
-		introPage []byte
-		mapPage []byte
-		introString string 
-		mapString string
-		bodyString string
-		cookieString string
-		request *http.Request
-		response *httptest.ResponseRecorder
-		expires time.Time
-		cookie *http.Cookie
-		form url.Values
+		err             error
+		introPage       []byte
+		mapPage         []byte
+		introString     string
+		mapString       string
+		bodyString      string
+		cookieString    string
+		request         *http.Request
+		response        *httptest.ResponseRecorder
+		expires         time.Time
+		cookie          *http.Cookie
+		form            url.Values
 	)
 
 	// Create a NotFoundHandler for the 404 page
@@ -40,7 +40,7 @@ func TestHomeHandler(t *testing.T) {
 
 	// Load intro page from disk for comparison of output
 	introPage, err = ioutil.ReadFile(introPath)
-	
+
 	if err != nil {
 		t.Errorf("Could not read intro.html while testing HomeHandler")
 	}
@@ -49,17 +49,17 @@ func TestHomeHandler(t *testing.T) {
 
 	// Load map page from disk for comparison of output
 	mapPage, err = ioutil.ReadFile(mapPath)
-	
+
 	if err != nil {
 		t.Errorf("Could not read map.html while testing HomeHandler")
-	}	
+	}
 
 	mapString = string(mapPage)
 
 	// Test the notFoundHandler returns a 404 for unknown paths
 	request, _ = http.NewRequest("GET", "/thispathdoesnotexist", nil)
 	response = httptest.NewRecorder()
-	
+
 	h.ServeHTTP(response, request)
 
 	// Check status code
@@ -70,13 +70,13 @@ func TestHomeHandler(t *testing.T) {
 	// Test as a new visitor with no cookies set
 	request, _ = http.NewRequest("GET", "/", nil)
 	response = httptest.NewRecorder()
-	
+
 	h.ServeHTTP(response, request)
 
 	// Check status code
 	if response.Code != http.StatusOK {
 		t.Errorf("Expected StatusOK from HomeHandler. Got: %s", response.Code)
-	}	
+	}
 
 	// Check handler serves intro.html by comparing with file on disk
 	bodyString = response.Body.String()
@@ -88,11 +88,11 @@ func TestHomeHandler(t *testing.T) {
 	// Test as a visitor who has seen the intro once but not opted out
 	request, _ = http.NewRequest("GET", "/", nil)
 	response = httptest.NewRecorder()
-	
+
 	expires = time.Now().Add(time.Duration(3600) * time.Second)
 	cookie = &http.Cookie{Name: h.seenCookie, Expires: expires}
 	request.AddCookie(cookie)
-	
+
 	h.ServeHTTP(response, request)
 
 	// Check status code
@@ -113,14 +113,14 @@ func TestHomeHandler(t *testing.T) {
 
 	expires = time.Now().Add(time.Duration(31104000) * time.Second)
 	cookie = &http.Cookie{Name: h.skipCookie, Expires: expires}
-	request.AddCookie(cookie)		
+	request.AddCookie(cookie)
 
 	h.ServeHTTP(response, request)
 
 	// Check status code
 	if response.Code != http.StatusOK {
 		t.Errorf("Expected StatusOK from HomeHandler. Got: %s", response.Code)
-	}	
+	}
 
 	// Check handler serves map.html by comparing with file on disk
 	bodyString = response.Body.String()
@@ -143,19 +143,19 @@ func TestHomeHandler(t *testing.T) {
 	// Check status code
 	if response.Code != http.StatusFound {
 		t.Errorf("Expected StatusFound from HomeHandler. Got: %s", response.Code)
-	}	
+	}
 
 	// Check if the response contains the seenCookie
 	cookieString = response.Header()["Set-Cookie"][0]
 
-	if ! strings.Contains(cookieString, h.seenCookie) {
-		t.Errorf("Expected the seen cookie in header from HomeHandler. " + 
+	if !strings.Contains(cookieString, h.seenCookie) {
+		t.Errorf("Expected the seen cookie in header from HomeHandler. "+
 			"Got: %s", response.Header())
 	}
 
 	// Check if the response contains the redirect to the base url
 	if response.Header()["Location"][0] != baseUrl {
-		t.Errorf("Expected redirect in header from HomeHandler. Got: %s", 
+		t.Errorf("Expected redirect in header from HomeHandler. Got: %s",
 			response.Header())
 	}
 
@@ -179,21 +179,21 @@ func TestHomeHandler(t *testing.T) {
 	// Check if the response contains the skipCookie
 	cookieString = response.Header()["Set-Cookie"][0]
 
-	if ! strings.Contains(cookieString, h.skipCookie) {
-		t.Errorf("Expected the seen cookie in header from HomeHandler. " + 
+	if !strings.Contains(cookieString, h.skipCookie) {
+		t.Errorf("Expected the seen cookie in header from HomeHandler. "+
 			"Got: %s", response.Header())
 	}
 
 	// Check if the response contains the redirect to the base url
 	if response.Header()["Location"][0] != baseUrl {
-		t.Errorf("Expected redirect in header from HomeHandler. Got: %s", 
+		t.Errorf("Expected redirect in header from HomeHandler. Got: %s",
 			response.Header())
 	}
 }
 
 // Test ResultsDb.GetPopulationData with a range of inputs.
 // Note that these tests check that the method returns correct data.
-// The expected results will therefore change whenever the population 
+// The expected results will therefore change whenever the population
 // databases change, and this unit test should be updated at that point.
 // This test implicitly tests NewResultsDb().
 func TestResultsDbGetPopulationData(t *testing.T) {
@@ -211,16 +211,18 @@ func TestResultsDbGetPopulationData(t *testing.T) {
 		{"E01004746"},
 		{"E01004747"},
 		// Then test them all in one query
-		{"E01004736",
-		"E01004731",
-		"E01004732",
-		"E01004733",
-		"E01004744",
-		"E01004748",
-		"E01004743",
-		"E01004745",
-		"E01004746",
-		"E01004747",},
+		{
+			"E01004736",
+			"E01004731",
+			"E01004732",
+			"E01004733",
+			"E01004744",
+			"E01004748",
+			"E01004743",
+			"E01004745",
+			"E01004746",
+			"E01004747",
+		},
 	}
 
 	expected := []string{
@@ -255,7 +257,7 @@ func TestResultsDbGetPopulationData(t *testing.T) {
 
 		if output != expected[i] {
 
-			t.Errorf("Expected %s in ResultsDb.GetPopulationData. Got: %s", 
+			t.Errorf("Expected %s in ResultsDb.GetPopulationData. Got: %s",
 				expected[i], output)
 
 		}
@@ -264,14 +266,14 @@ func TestResultsDbGetPopulationData(t *testing.T) {
 
 // Test ResultsHandler with a range of inputs.
 // Note that these tests check that the method returns correct data.
-// The expected results will therefore change whenever the population 
+// The expected results will therefore change whenever the population
 // databases change, and this unit test should be updated at that point.
 // This test implicitly tests NewResultsHandler().
 func TestResultsHandler(t *testing.T) {
 
 	var (
-		h *ResultsHandler
-		resultsDb *ResultsDb
+		h            *ResultsHandler
+		resultsDb    *ResultsDb
 		errorHandler *handlers.ErrorHandler
 	)
 
@@ -298,8 +300,8 @@ func TestResultsHandler(t *testing.T) {
 		"E01004746",
 		"E01004747",
 		// Then test them all in one page request
-		"E01004736,E01004731,E01004732,E01004733,E01004744," + 
-		"E01004748,E01004743,E01004745,E01004746,E01004747",		
+		"E01004736,E01004731,E01004732,E01004733,E01004744," +
+			"E01004748,E01004743,E01004745,E01004746,E01004747",
 	}
 
 	expected := []string{
@@ -332,7 +334,7 @@ func TestResultsHandler(t *testing.T) {
 
 		// Check status code
 		if response.Code != http.StatusOK {
-			t.Errorf("Expected StatusOK from resultsHandler. Got: %s", 
+			t.Errorf("Expected StatusOK from resultsHandler. Got: %s",
 				response.Code)
 		}
 
@@ -340,8 +342,8 @@ func TestResultsHandler(t *testing.T) {
 		bodyString := response.Body.String()
 		expectedString := "The selected population is <b>" + expected[i] + "</b>"
 
-		if ! strings.Contains(bodyString, expectedString) {
-			t.Errorf("Expected the total in body from resultsHandler. " + 
+		if !strings.Contains(bodyString, expectedString) {
+			t.Errorf("Expected the total in body from resultsHandler. "+
 				"Got: %s", bodyString)
 		}
 	}
@@ -349,7 +351,7 @@ func TestResultsHandler(t *testing.T) {
 
 // Test DownloadDb.GetPopulationData with a range of inputs.
 // Note that these tests check that the method returns correct data.
-// The expected results will therefore change whenever the population 
+// The expected results will therefore change whenever the population
 // databases change, and this unit test should be updated at that point.
 // This test implicitly tests NewDownloadDb().
 func TestDownloadDbGetPopulationData(t *testing.T) {
@@ -370,16 +372,18 @@ func TestDownloadDbGetPopulationData(t *testing.T) {
 		{"E01004746"},
 		{"E01004747"},
 		// Then test them all in one query
-		{"E01004736",
-		"E01004731",
-		"E01004732",
-		"E01004733",
-		"E01004744",
-		"E01004748",
-		"E01004743",
-		"E01004745",
-		"E01004746",
-		"E01004747",},
+		{
+			"E01004736",
+			"E01004731",
+			"E01004732",
+			"E01004733",
+			"E01004744",
+			"E01004748",
+			"E01004743",
+			"E01004745",
+			"E01004746",
+			"E01004747",
+		},
 	}
 
 	expected := []int64{
@@ -394,7 +398,7 @@ func TestDownloadDbGetPopulationData(t *testing.T) {
 		84,
 		117,
 		909,
-	}	
+	}
 
 	// Create a DownloadDb
 	ddb := NewDownloadDb(downloadDbPath)
@@ -404,7 +408,7 @@ func TestDownloadDbGetPopulationData(t *testing.T) {
 	for i, c := range codes {
 
 		populationData, err := ddb.GetPopulationData(c)
-		
+
 		if err != nil {
 			t.Errorf("Could not get data from DownloadDb.")
 		}
@@ -420,7 +424,7 @@ func TestDownloadDbGetPopulationData(t *testing.T) {
 
 		if output != expected[i] {
 
-			t.Errorf("Expected %s in DownloadDb.GetPopulationData. Got: %s", 
+			t.Errorf("Expected %s in DownloadDb.GetPopulationData. Got: %s",
 				expected[i], output)
 
 		}
@@ -429,18 +433,18 @@ func TestDownloadDbGetPopulationData(t *testing.T) {
 
 // Test DownloadHandler with a range of inputs.
 // Note that these tests check that the method returns correct data.
-// The expected results will therefore change whenever the population 
+// The expected results will therefore change whenever the population
 // databases change, and this unit test should be updated at that point.
 // This test implicitly tests NewResultsHandler().
 func TestDownloadHandler(t *testing.T) {
 
 	var (
-		h *DownloadHandler
-		downloadDb *DownloadDb
+		h            *DownloadHandler
+		downloadDb   *DownloadDb
 		errorHandler *handlers.ErrorHandler
 	)
 
-	// Create a DownloadDb 
+	// Create a DownloadDb
 	downloadDb = NewDownloadDb(downloadDbPath)
 	defer downloadDb.Close()
 
@@ -463,8 +467,8 @@ func TestDownloadHandler(t *testing.T) {
 		"E01004746",
 		"E01004747",
 		// Then test them all in one page request
-		"E01004736,E01004731,E01004732,E01004733,E01004744," + 
-		"E01004748,E01004743,E01004745,E01004746,E01004747",		
+		"E01004736,E01004731,E01004732,E01004733,E01004744," +
+			"E01004748,E01004743,E01004745,E01004746,E01004747",
 	}
 
 	expected := []string{
@@ -497,15 +501,15 @@ func TestDownloadHandler(t *testing.T) {
 
 		// Check status code
 		if response.Code != http.StatusOK {
-			t.Errorf("Expected StatusOK from downloadHandler. Got: %s", 
+			t.Errorf("Expected StatusOK from downloadHandler. Got: %s",
 				response.Code)
 		}
 
 		// Check if the response body contains the expected string
 		bodyString := response.Body.String()
 
-		if ! strings.Contains(bodyString, expected[i]) {
-			t.Errorf("Expected the total in body from downloadHandler. " + 
+		if !strings.Contains(bodyString, expected[i]) {
+			t.Errorf("Expected the total in body from downloadHandler. "+
 				"Got: %s", bodyString)
 		}
 	}
