@@ -73,7 +73,6 @@ func NewHomeHandler(introPath string, mapPath string,
 	}
 
 	return &HomeHandler{
-
 		introPage:       introPage,
 		mapPage:         mapPage,
 		seenCookie:      "seen",
@@ -175,7 +174,6 @@ func NewResultsDb(dbPath string) *ResultsDb {
 
 	// Create a new resultsDB with the database handle and return a pointer
 	return &ResultsDb{
-
 		db: dbHandle,
 		baseQuery: `
 SELECT
@@ -259,7 +257,6 @@ func NewResultsHandler(templatePath string, database *ResultsDb,
 	}
 
 	return &ResultsHandler{
-
 		rdb:          database,
 		errorHandler: errorHandler,
 		template:     templateFile,
@@ -325,7 +322,6 @@ func NewDownloadDb(dbPath string) *DownloadDb {
 
 	// Create a new DownloadDb with the database handle and return a pointer
 	return &DownloadDb{
-
 		db: dbHandle,
 		baseQuery: `
 SELECT
@@ -448,7 +444,6 @@ func NewDownloadHandler(templatePath string, database *DownloadDb,
 	}
 
 	return &DownloadHandler{
-
 		ddb:          database,
 		errorHandler: errorHandler,
 		template:     templateFile,
