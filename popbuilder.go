@@ -122,6 +122,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		// If the form was not posted, check if the intro should be skipped
+		// If skipCookie has been set, send the map
 		if _, err := r.Cookie(h.skipCookie); err == nil {
 
 			page = h.mapPage
