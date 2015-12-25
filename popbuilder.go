@@ -54,7 +54,7 @@ type HomeHandler struct {
 	notFoundHandler *handlers.NotFoundHandler
 }
 
-// HomeHandler returns a new homeHandler with the handler values initialised.
+// NewHomeHandler returns a new homeHandler with the handler values initialised.
 func NewHomeHandler(introPath string, mapPath string,
 	notFoundHandler *handlers.NotFoundHandler) *HomeHandler {
 
