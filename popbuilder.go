@@ -6,6 +6,7 @@ arbitrary set of small areas in Great Britain.
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	_ "github.com/mattn/go-sqlite3"
@@ -269,11 +270,16 @@ func NewResultsHandler(templatePath string, database *ResultsDb,
 // and is inserted into the template for display in a d3 population pyramid.
 func (h *ResultsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	var buffer bytes.Buffer
+
+	// Check the form contains the expected zone data
 	if zonestr := r.PostFormValue(h.zoneForm); zonestr != "" {
 
+		// Parse the zone ids and use them to query the database
 		zones := strings.Split(zonestr, ",")
 		templateData, err := h.rdb.GetPopulationData(zones)
 
+		// If the database query fails report an error
 		if err != nil {
 
 			h.errorHandler.ServeError(w,
@@ -282,11 +288,27 @@ func (h *ResultsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		// Add the zones to the template data
 		templateData.Zones = zonestr
-		h.template.Execute(w, templateData)
+
+		// Execute template into buffer
+		err = h.template.Execute(&buffer, templateData)
+
+		// If template execution fails, report it with the error handler
+		if err != nil {
+
+			h.errorHandler.ServeError(w,
+				"Could not execute ResultsHandler template.")
+
+			return
+		}
+
+		// Otherwise serve the results in the template
+		buffer.WriteTo(w)
 
 	} else {
 
+		// Post data is missing so redirect to the homepage
 		http.Redirect(w, r, baseUrl, http.StatusFound)
 	}
 
@@ -456,11 +478,16 @@ func NewDownloadHandler(templatePath string, database *DownloadDb,
 // and is sent to the browser as a csv download.
 func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
+	var buffer bytes.Buffer
+
+	// Check the form contains the expected zone data
 	if zonestr := r.PostFormValue(h.zoneForm); zonestr != "" {
 
+		// Parse the zone ids and use them to query the database
 		zones := strings.Split(zonestr, ",")
 		templateData, err := h.ddb.GetPopulationData(zones)
 
+		// If the database query fails report an error
 		if err != nil {
 
 			h.errorHandler.ServeError(w,
@@ -478,10 +505,24 @@ func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "must-revalidate, post-check=0, pre-check=0")
 		w.Header().Set("Pragma", "public")
 
-		h.template.Execute(w, templateData)
+		// Execute template into buffer
+		err = h.template.Execute(&buffer, templateData)
+
+		// If template execution fails, report it with the error handler
+		if err != nil {
+
+			h.errorHandler.ServeError(w,
+				"Could not execute DownloadHandler template.")
+
+			return
+		}
+
+		// Otherwise serve the results in the template
+		buffer.WriteTo(w)
 
 	} else {
 
+		// Post data is missing so redirect to the homepage
 		http.Redirect(w, r, baseUrl, http.StatusFound)
 	}
 
