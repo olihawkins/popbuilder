@@ -24,24 +24,20 @@ import (
 
 // Define package constants
 const (
-	baseUrl string = "/"
-	sep     string = string(filepath.Separator)
-
-	dbDir        string = "db"
-	templateDir  string = "templates"
-	resourcesDir string = "resources"
-
+	baseURL        string = "/"
+	sep            string = string(filepath.Separator)
+	dbDir          string = "db"
+	templateDir    string = "templates"
+	resourcesDir   string = "resources"
 	resultsDbPath  string = dbDir + sep + "popzones-10.db"
 	downloadDbPath string = dbDir + sep + "popzones-5.db"
-
-	introPath    string = templateDir + sep + "intro.html"
-	mapPath      string = templateDir + sep + "map.html"
-	resultsPath  string = templateDir + sep + "results.html"
-	downloadPath string = templateDir + sep + "download.txt"
-
-	notFoundPath        string = templateDir + sep + "notfound.html"
-	errorPath           string = templateDir + sep + "error.html"
-	defaultErrorMessage string = "Sorry! An error has occurred."
+	introPath      string = templateDir + sep + "intro.html"
+	mapPath        string = templateDir + sep + "map.html"
+	resultsPath    string = templateDir + sep + "results.html"
+	downloadPath   string = templateDir + sep + "download.txt"
+	notFoundPath   string = templateDir + sep + "notfound.html"
+	errorPath      string = templateDir + sep + "error.html"
+	defaultError   string = "Sorry! An error has occurred."
 )
 
 // HomeHandler implements http.Handler and serves requests for the homepage.
@@ -116,7 +112,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.SetCookie(w, cookie)
 		}
 
-		http.Redirect(w, r, baseUrl, http.StatusFound)
+		http.Redirect(w, r, baseURL, http.StatusFound)
 		return
 
 	} else {
@@ -309,7 +305,7 @@ func (h *ResultsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		// Post data is missing so redirect to the homepage
-		http.Redirect(w, r, baseUrl, http.StatusFound)
+		http.Redirect(w, r, baseURL, http.StatusFound)
 	}
 
 	return
@@ -523,7 +519,7 @@ func (h *DownloadHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	} else {
 
 		// Post data is missing so redirect to the homepage
-		http.Redirect(w, r, baseUrl, http.StatusFound)
+		http.Redirect(w, r, baseURL, http.StatusFound)
 	}
 
 	return
@@ -545,7 +541,7 @@ func main() {
 
 	// Create the utility handlers
 	notFoundHandler := handlers.LoadNotFoundHandler(notFoundPath)
-	errorHandler := handlers.LoadErrorHandler(errorPath, defaultErrorMessage, true)
+	errorHandler := handlers.LoadErrorHandler(errorPath, defaultError, true)
 
 	// Create the the page handlers for home, results and download pages
 	http.Handle("/", NewHomeHandler(introPath, mapPath, notFoundHandler))

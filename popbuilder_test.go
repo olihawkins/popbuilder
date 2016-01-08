@@ -154,7 +154,7 @@ func TestHomeHandler(t *testing.T) {
 	}
 
 	// Check if the response contains the redirect to the base url
-	if response.Header()["Location"][0] != baseUrl {
+	if response.Header()["Location"][0] != baseURL {
 		t.Errorf("Expected redirect in header from HomeHandler. Got: %s",
 			response.Header())
 	}
@@ -185,7 +185,7 @@ func TestHomeHandler(t *testing.T) {
 	}
 
 	// Check if the response contains the redirect to the base url
-	if response.Header()["Location"][0] != baseUrl {
+	if response.Header()["Location"][0] != baseURL {
 		t.Errorf("Expected redirect in header from HomeHandler. Got: %s",
 			response.Header())
 	}
