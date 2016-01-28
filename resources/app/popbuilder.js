@@ -155,7 +155,6 @@ pb.MapModel = function(mapView) {
 	this.overlayControlActive = false;
 	this.overlayStates = ['Auto', 'On', 'Off'];
 	this.currentOverlayState = 0;
-	this.highlightedZone = null;
 	this.highlightedZoneCode = '';
 
 	/* Method called when the map moves to update the map state.
@@ -229,6 +228,16 @@ pb.MapModel = function(mapView) {
 								mapModel.selectZone(feature, e.target);
 							}
 						});
+
+						layer.on('mousemove', function(e) {
+
+							mapModel.setCurrentZone(feature);
+						});
+
+						layer.on('mouseout', function(e) {
+
+							mapModel.clearCurrentZone();
+						});
 					}
 				});
 				
@@ -287,15 +296,8 @@ pb.MapModel = function(mapView) {
 		layer.setStyle({fillOpacity: 0.4});
 		this.mapView.popInfo.update(this.selectedPopulation);
 		
-		// Handle highlighting of zone
-		if (this.highlightedZone !== null) {
-
-			this.highlightedZone.setStyle({color: '#A000A0', weight: 2});
-		}
-
-		this.highlightedZone = layer;
+		// Handle displaying zone code
 		this.highlightedZoneCode = feature.properties.zone;
-		layer.setStyle({color: '#FF0070', weight: 5});
 		this.setZoneCode(feature.properties.zone);
 	};
 
@@ -309,9 +311,7 @@ pb.MapModel = function(mapView) {
 		layer.setStyle({fillOpacity: 0.0});
 		this.mapView.popInfo.update(this.selectedPopulation);
 
-		// Handle unhighlighting of zone
-		this.highlightedZone.setStyle({color: '#A000A0', weight: 2});
-		this.highlightedZone = null;
+		// Handle displaying zone code
 		this.highlightedZoneCode = '';
 		this.setZoneCode('');
 	};
@@ -348,12 +348,24 @@ pb.MapModel = function(mapView) {
 	};
 
 	// Sets the displayed zone code.
-	this.setZoneCode= function(zoneCode) {
+	this.setZoneCode = function(zoneCode) {
 
 		overlayState = this.currentOverlayState;
 		var nextOverlayState = this.overlayStates[overlayState];
 		this.mapView.overlayControl.update(nextOverlayState, zoneCode);
 	};
+
+	// Sets the current zone 
+	this.setCurrentZone = function(feature) {
+
+		this.setZoneCode(feature.properties.zone);
+	};
+
+	// Resets the current zone
+	this.clearCurrentZone = function() {
+
+		this.setZoneCode('');
+	};	
 };
 
 /* Constructor for the MapController object, a singleton that handles user 
@@ -416,10 +428,11 @@ pb.MapController = function(mapModel) {
 		this.mapModel.zoomLevel = newZoomLevel;
 	};
 
-	// Clears overlays from map by passing an empty array of districts in view
+	// Clears overlays from map and the current zone code
 	this.clearMap = function() {
 
 		this.mapModel.setDistrictsInView([]);
+		this.mapModel.clearCurrentZone();
 	};
 
 	// Switches to the next overlay state, called by the overlay control
