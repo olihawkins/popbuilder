@@ -16,9 +16,7 @@ window.pb = pb;
 which boundaries intersect with the map's current view. The boundaries
 themselves are LSOAs and Data Zones grouped by local authority districts. 
 LSOAs are used in England and Wales, Data Zones in Scotland. BoundarySearch 
-finds the districts in view by searching within the regions in view.
-*/
-
+finds the districts in view by searching within the regions in view. */
 pb.BoundarySearch = function(regions) {
 
 	this.regions = regions;
@@ -61,9 +59,7 @@ pb.BoundarySearch = function(regions) {
 };
 
 /* Constructor for the MapView object, a singleton that manages the state 
-of the Leaflet map.
-*/
-
+of the Leaflet map. */
 pb.MapView = function(map) {
 
 	this.map = map;
@@ -140,9 +136,7 @@ pb.MapView = function(map) {
 
 /* Constructor for the MapModel object, a singleton that manages the state 
 of the MapView. The MapController updates the MapModel with changes 
-arising from events, and the MapModel updates the MapView.
-*/
-
+arising from events, and the MapModel updates the MapView. */
 pb.MapModel = function(mapView) {
 
 	this.mapView = mapView;
@@ -161,9 +155,7 @@ pb.MapModel = function(mapView) {
 
 	/* Method called when the map moves to update the map state.
 	The method is given the codes of the districts in the current
-	map view, as determined by the boundarySearch object.
-	*/
-
+	map view, as determined by the boundarySearch object. */
 	this.setDistrictsInView = function(districtsInView) {
 
 		var distInView,
@@ -309,7 +301,7 @@ pb.MapModel = function(mapView) {
 			this.mapView.addOverlayControl();
 			this.setOverlayState(this.currentOverlayState);
 		}
-	}
+	};
 
 	// Sets the overlay state control setting to inactive
 	this.deactivateOverlayControl = function() {
@@ -319,7 +311,7 @@ pb.MapModel = function(mapView) {
 			this.overlayControlActive = false;
 			this.mapView.removeOverlayControl();
 		}
-	}
+	};
 
 	// Sets the overlay state. Must be a valid overlay state.
 	this.setOverlayState = function(overlayState) {
@@ -327,13 +319,11 @@ pb.MapModel = function(mapView) {
 		this.currentOverlayState = overlayState;
 		var nextOverlayState = this.overlayStates[overlayState];
 		this.mapView.overlayControl.update(nextOverlayState);
-	}
+	};
 };
 
 /* Constructor for the MapController object, a singleton that handles user 
-events and updates the MapModel accordingly.
-*/
-
+events and updates the MapModel accordingly. */
 pb.MapController = function(mapModel) {
 
 	this.mapModel = mapModel;
@@ -503,8 +493,8 @@ pb.submitForm = function(path, params, method) {
 	form.setAttribute("method", method);
 	form.setAttribute("action", path);
  
-	// Move the submit function to another variable
-	// so that it doesn't get overwritten
+	/* Move the submit function to another variable
+	so that it doesn't get overwritten */
 	form._submit_function_ = form.submit;
  
 	for(var key in params) {
