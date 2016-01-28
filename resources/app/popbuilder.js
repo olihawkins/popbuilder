@@ -498,12 +498,13 @@ pb.submitForm = function(path, params, method) {
 	form._submit_function_ = form.submit;
  
 	for(var key in params) {
+		
 		if(params.hasOwnProperty(key)) {
+
 			var hiddenField = document.createElement("input");
 			hiddenField.setAttribute("type", "hidden");
 			hiddenField.setAttribute("name", key);
 			hiddenField.setAttribute("value", params[key]);
- 
 			form.appendChild(hiddenField);
 		 }
 	}
