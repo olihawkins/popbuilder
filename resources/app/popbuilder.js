@@ -118,9 +118,9 @@ pb.MapView = function(map) {
 	// Updates the overlay control with the given population
 	this.overlayControl.update = function(overlayState) {
 
-		this._div.innerHTML = '<h4>Boundaries</h4><span class="state" ' + 
+		this._div.innerHTML = '<h4>Boundaries</h4><p><span class="state" ' + 
 			'onclick="pb.mapController.changeOverlaySetting();">' + 
-			overlayState + '</span>';
+			overlayState + '</p></span>';
 	};
 
 	this.addOverlayControl = function() {
