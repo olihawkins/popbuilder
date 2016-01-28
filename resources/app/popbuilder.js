@@ -116,11 +116,14 @@ pb.MapView = function(map) {
 	};
 
 	// Updates the overlay control with the given population
-	this.overlayControl.update = function(overlayState) {
+	this.overlayControl.update = function(overlayState, zoneCode) {
+
+		var zoneCode = (zoneCode !== '') ? zoneCode : '&hellip;';
 
 		this._div.innerHTML = '<h4>Boundaries</h4><p><span class="state" ' + 
 			'onclick="pb.mapController.changeOverlaySetting();">' + 
-			overlayState + '</span></p>';
+			overlayState + '</span></p><h4>Zone Code</h4><p>' + 
+			'<span class="code">' + zoneCode + '</span></p>';
 	};
 
 	this.addOverlayControl = function() {
@@ -152,6 +155,8 @@ pb.MapModel = function(mapView) {
 	this.overlayControlActive = false;
 	this.overlayStates = ['Auto', 'On', 'Off'];
 	this.currentOverlayState = 0;
+	this.highlightedZone = null;
+	this.highlightedZoneCode = '';
 
 	/* Method called when the map moves to update the map state.
 	The method is given the codes of the districts in the current
@@ -275,21 +280,40 @@ pb.MapModel = function(mapView) {
 	// Handles the selection of zones
 	this.selectZone = function(feature, layer) {
 
+		// Handle selection of the zone
 		feature.properties.selected = true;
 		this.selectedZones[feature.properties.zone] = layer;
 		this.selectedPopulation += parseInt(feature.properties.population, 10);
 		layer.setStyle({fillOpacity: 0.4});
 		this.mapView.popInfo.update(this.selectedPopulation);
+		
+		// Handle highlighting of zone
+		if (this.highlightedZone !== null) {
+
+			this.highlightedZone.setStyle({color: '#A000A0', weight: 2});
+		}
+
+		this.highlightedZone = layer;
+		this.highlightedZoneCode = feature.properties.zone;
+		layer.setStyle({color: '#FF0070', weight: 5});
+		this.setZoneCode(feature.properties.zone);
 	};
 
 	// Handles the deselection of zones
 	this.deselectZone = function(feature, layer) {
 
+		// Handle deselection of zone
 		feature.properties.selected = false;
 		delete this.selectedZones[feature.properties.zone];
 		this.selectedPopulation -= parseInt(feature.properties.population, 10);
 		layer.setStyle({fillOpacity: 0.0});
 		this.mapView.popInfo.update(this.selectedPopulation);
+
+		// Handle unhighlighting of zone
+		this.highlightedZone.setStyle({color: '#A000A0', weight: 2});
+		this.highlightedZone = null;
+		this.highlightedZoneCode = '';
+		this.setZoneCode('');
 	};
 
 	// Sets the overlay state control setting to active
@@ -318,7 +342,17 @@ pb.MapModel = function(mapView) {
 
 		this.currentOverlayState = overlayState;
 		var nextOverlayState = this.overlayStates[overlayState];
-		this.mapView.overlayControl.update(nextOverlayState);
+		
+		this.mapView.overlayControl.update(
+			nextOverlayState, this.highlightedZoneCode);
+	};
+
+	// Sets the displayed zone code.
+	this.setZoneCode= function(zoneCode) {
+
+		overlayState = this.currentOverlayState;
+		var nextOverlayState = this.overlayStates[overlayState];
+		this.mapView.overlayControl.update(nextOverlayState, zoneCode);
 	};
 };
 
