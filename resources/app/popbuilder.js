@@ -120,7 +120,7 @@ pb.MapView = function(map) {
 
 		this._div.innerHTML = '<h4>Boundaries</h4><p><span class="state" ' + 
 			'onclick="pb.mapController.changeOverlaySetting();">' + 
-			overlayState + '</p></span>';
+			overlayState + '</span></p>';
 	};
 
 	this.addOverlayControl = function() {
