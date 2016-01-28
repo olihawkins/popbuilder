@@ -2,7 +2,7 @@
 Application: Population Builder
 Description: An app for estimating the population of a set of small areas
 Filename: popbuilder.js
-Copyright: Oliver Hawkins, 2015
+Copyright: Oliver Hawkins, 2015-16
 Requires: D3 (d3), Leaflet (L)
 */
 
