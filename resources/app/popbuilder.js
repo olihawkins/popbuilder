@@ -92,7 +92,7 @@ pb.MapView = function(map) {
 			var population = pb.numberWithCommas(population);
 			this._div.innerHTML = '<h4>Population</h4><p><span ' +
 				'class="number">' + population + '</span></p>' + 
-				'<p><span class="data" ' +
+				'<p><span class="action" ' +
 				'onclick="pb.mapController.getResults();">' + 
 				'Get data</span></p>';
 
@@ -120,10 +120,12 @@ pb.MapView = function(map) {
 
 		var zoneCode = (zoneCode !== '') ? zoneCode : '&hellip;';
 
-		this._div.innerHTML = '<h4>Boundaries</h4><p><span class="state" ' + 
+		this._div.innerHTML = '<h4>Boundaries</h4><p><span class="action" ' + 
 			'onclick="pb.mapController.changeOverlaySetting();">' + 
 			overlayState + '</span></p><h4>Zone Code</h4><p>' + 
-			'<span class="code">' + zoneCode + '</span></p>';
+			'<span class="code">' + zoneCode + '</span></p>' + 
+			'<span class="action" onclick="pb.mapController.deselectAll();">' +
+			'Clear Map</span></p>';
 	};
 
 	this.addOverlayControl = function() {
@@ -149,12 +151,14 @@ pb.MapModel = function(mapView) {
 	this.districtsInView = [];
 	this.districtsLoaded = {};
 	this.districtsOnMap = {};
+	this.selectedFeatures = {};
 	this.selectedZones = {};
 	this.selectedPopulation = 0;
 	this.overlayZoomLevel = 9;
 	this.overlayControlActive = false;
 	this.overlayStates = ['Auto', 'On', 'Off'];
 	this.currentOverlayState = 0;
+	this.highlightedZone = null;
 	this.highlightedZoneCode = '';
 
 	/* Method called when the map moves to update the map state.
@@ -229,14 +233,24 @@ pb.MapModel = function(mapView) {
 							}
 						});
 
+						layer.on('mouseover', function(e) {
+
+							mapModel.setHighlightedZone(feature, e.target);
+						});
+
 						layer.on('mousemove', function(e) {
 
-							mapModel.setCurrentZone(feature);
+							mapModel.setCurrentZone(feature, e.target);
 						});
 
 						layer.on('mouseout', function(e) {
 
 							mapModel.clearCurrentZone();
+						});
+
+						layer.on('contextmenu', function(e) {
+
+							mapModel.setHighlightedZone(feature, e.target);
 						});
 					}
 				});
@@ -289,31 +303,34 @@ pb.MapModel = function(mapView) {
 	// Handles the selection of zones
 	this.selectZone = function(feature, layer) {
 
-		// Handle selection of the zone
 		feature.properties.selected = true;
+		this.selectedFeatures[feature.properties.zone] = feature;
 		this.selectedZones[feature.properties.zone] = layer;
 		this.selectedPopulation += parseInt(feature.properties.population, 10);
 		layer.setStyle({fillOpacity: 0.4});
 		this.mapView.popInfo.update(this.selectedPopulation);
-		
-		// Handle displaying zone code
-		this.highlightedZoneCode = feature.properties.zone;
-		this.setZoneCode(feature.properties.zone);
 	};
 
 	// Handles the deselection of zones
 	this.deselectZone = function(feature, layer) {
 
-		// Handle deselection of zone
 		feature.properties.selected = false;
+		delete this.selectedFeatures[feature.properties.zone];
 		delete this.selectedZones[feature.properties.zone];
 		this.selectedPopulation -= parseInt(feature.properties.population, 10);
 		layer.setStyle({fillOpacity: 0.0});
 		this.mapView.popInfo.update(this.selectedPopulation);
+	};
 
-		// Handle displaying zone code
-		this.highlightedZoneCode = '';
-		this.setZoneCode('');
+	// Deselects all sones on the map
+	this.deselectAllZones = function() {
+
+		for (zoneCode in this.selectedFeatures) {
+
+			feature = this.selectedFeatures[zoneCode];
+			layer = this.selectedZones[zoneCode];
+			this.deselectZone(feature, layer)
+		}
 	};
 
 	// Sets the overlay state control setting to active
@@ -356,16 +373,53 @@ pb.MapModel = function(mapView) {
 	};
 
 	// Sets the current zone 
-	this.setCurrentZone = function(feature) {
+	this.setCurrentZone = function(feature, layer) {
 
 		this.setZoneCode(feature.properties.zone);
+
+		if (this.highlightedZone === null) {
+
+			this.setHighlightedZone(feature, layer);
+		} 
 	};
 
 	// Resets the current zone
 	this.clearCurrentZone = function() {
 
+		if (this.highlightedZone !== null) {
+			
+			this.highlightedZone.setStyle({color: '#A000A0', weight: 2});
+			this.highlightedZone = null;
+			this.highlightedZoneCode = '';
+		}
+		
 		this.setZoneCode('');
-	};	
+	};
+
+	// Sets the highlighted zone
+	this.setHighlightedZone = function(feature, layer) {	
+
+		if (this.highlightedZone !== null) {
+
+			if (this.highlightedZone === layer) {
+
+				this.clearCurrentZone();
+				return;
+			
+			} else {
+
+				this.highlightedZone.setStyle({color: '#A000A0', weight: 2});
+				this.clearCurrentZone();
+				this.highlightedZone = null;
+				this.highlightedZoneCode = '';
+			}
+		}
+
+		layer.setStyle({color: '#FF0080', weight: 8});
+		this.highlightedZone = layer;
+		this.highlightedZoneCode = feature.properties.zone;
+		this.setCurrentZone(feature, layer);
+	};
 };
 
 /* Constructor for the MapController object, a singleton that handles user 
@@ -448,6 +502,13 @@ pb.MapController = function(mapModel) {
 		this.mapModel.setOverlayState(overlayState);
 		this.updateMap(this.mapModel.mapBounds, this.mapModel.zoomLevel);
 	};
+
+	// Clears the selected areas
+	this.deselectAll = function() {
+
+		this.mapModel.deselectAllZones();
+		this.mapModel.clearCurrentZone();
+	}
 
 	// Sends the selected areas to the results page
 	this.getResults = function() {
