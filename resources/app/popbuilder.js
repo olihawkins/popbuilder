@@ -122,7 +122,7 @@ pb.MapView = function(map) {
 
 		this._div.innerHTML = '<h4>Boundaries</h4><p><span class="action" ' + 
 			'onclick="pb.mapController.changeOverlaySetting();">' + 
-			overlayState + '</span></p><h4>Zone Code</h4><p>' + 
+			overlayState + '</span></p><h4>Area Code</h4><p>' + 
 			'<span class="code">' + zoneCode + '</span></p>' + 
 			'<span class="action" onclick="pb.mapController.deselectAll();">' +
 			'Clear Map</span></p>';
