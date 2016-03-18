@@ -141,7 +141,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Serve the given page
-	fmt.Fprintf(w, "%s", page)
+	w.Write(page)
 	return
 }
 
