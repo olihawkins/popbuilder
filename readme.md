@@ -28,7 +28,7 @@ Use `go test` to run the tests.
 ### Documentation
 See the [GoDoc][gd] for the documentation.
 
-   [pb]: <http://olihawkins.com/projects/popbuilder>
+   [pb]: <http://popbuilder.uk>
    [go]: <https://golang.org/>
    [lf]: <http://leafletjs.com/>
    [d3]: <http://d3js.org/>
