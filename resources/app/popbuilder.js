@@ -8,6 +8,8 @@ Requires: D3 (d3), Leaflet (L)
 
 (function (window, document, d3, L) {
 
+"use strict";
+
 // Set up global application object
 var pb = {};
 window.pb = pb;
@@ -28,6 +30,7 @@ pb.BoundarySearch = function(regions) {
 			regionCodes = Object.keys(this.regions),
 			regionBounds,
 			districts,
+			districtCode,
 			districtCodes, 
 			districtBounds,
 			bounds;
@@ -66,12 +69,12 @@ pb.MapView = function(map) {
 	this.popInfo = L.control();
 	this.overlayControl = L.control({position: 'bottomright'});
 
-	this.addDistrictLayer = function(districtCode, districtLayer) {
+	this.addDistrictLayer = function(districtLayer) {
 
 		districtLayer.addTo(this.map);
 	};
 
-	this.removeDistrictLayer = function(districtCode, districtLayer) {
+	this.removeDistrictLayer = function(districtLayer) {
 	
 		this.map.removeLayer(districtLayer);	
 	};
@@ -260,7 +263,7 @@ pb.MapModel = function(mapView) {
 				if (mapModel.districtsInView.indexOf(districtCode) != -1) {
 
 					mapModel.districtsOnMap[districtCode] = districtLayer;
-					mapView.addDistrictLayer(districtCode, districtLayer);
+					mapView.addDistrictLayer(districtLayer);
 				}
 			}
 		};
@@ -273,7 +276,7 @@ pb.MapModel = function(mapView) {
 
 				districtLayer = this.districtsLoaded[districtCode];
 				this.districtsOnMap[districtCode] = districtLayer;
-				mapView.addDistrictLayer(districtCode, districtLayer);
+				mapView.addDistrictLayer(districtLayer);
 
 			// Otherwise load the layer then add it with a callback
 			} else {
@@ -295,7 +298,7 @@ pb.MapModel = function(mapView) {
 		if (districtsOnMap.hasOwnProperty(districtCode)) {
 
 			districtLayer = districtsOnMap[districtCode];
-			this.mapView.removeDistrictLayer(districtCode, districtLayer);
+			this.mapView.removeDistrictLayer(districtLayer);
 			delete districtsOnMap[districtCode];
 		}
 	};
@@ -325,10 +328,10 @@ pb.MapModel = function(mapView) {
 	// Deselects all sones on the map
 	this.deselectAllZones = function() {
 
-		for (zoneCode in this.selectedFeatures) {
+		for (var zoneCode in this.selectedFeatures) {
 
-			feature = this.selectedFeatures[zoneCode];
-			layer = this.selectedZones[zoneCode];
+			var feature = this.selectedFeatures[zoneCode];
+			var layer = this.selectedZones[zoneCode];
 			this.deselectZone(feature, layer)
 		}
 	};
@@ -367,7 +370,7 @@ pb.MapModel = function(mapView) {
 	// Sets the displayed zone code.
 	this.setZoneCode = function(zoneCode) {
 
-		overlayState = this.currentOverlayState;
+		var overlayState = this.currentOverlayState;
 		var nextOverlayState = this.overlayStates[overlayState];
 		this.mapView.overlayControl.update(nextOverlayState, zoneCode);
 	};
@@ -524,7 +527,7 @@ pb.MapController = function(mapModel) {
 // Load the bounds data, initialise the boundarySearch, and launch the app
 pb.launch = function () {
 
-	boundsDataFile = 'resources/app/bounds.json';
+	var boundsDataFile = 'resources/app/bounds.json';
 
 	d3.json(boundsDataFile, function(boundsData) {
 
