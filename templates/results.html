@@ -4,9 +4,9 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width">
 	<title>Population Builder</title>
-	<script type="text/javascript" src="resources/lib/leaflet/leaflet.js"></script>
-	<script type="text/javascript" src="resources/lib/d3/d3.min.js"></script>
-	<script type="text/javascript" src="resources/app/popbuilder.js"></script>
+	<script type="text/javascript" src="/resources/lib/leaflet/leaflet.js"></script>
+	<script type="text/javascript" src="/resources/lib/d3/d3.min.js"></script>
+	<script type="text/javascript" src="/resources/app/popbuilder.js"></script>
 	<link rel="stylesheet" type="text/css" href="/resources/styles/main.css" />
 	<style type="text/css">
 
@@ -349,7 +349,7 @@
 				function downloadData() {
 
 					var postParameters = {zones: '{{.Zones}}'};
-					var downloadPage = 'download';
+					var downloadPage = '/download';
 					pb.submitForm(downloadPage, postParameters);
 				};
 

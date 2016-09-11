@@ -281,7 +281,7 @@ pb.MapModel = function(mapView) {
 			// Otherwise load the layer then add it with a callback
 			} else {
 
-				var jsonPath = 'resources/popzones/' + districtCode + '.json';
+				var jsonPath = '/resources/popzones/' + districtCode + '.json';
 				d3.json(jsonPath, downloadDistrict);
 			}
 		}
