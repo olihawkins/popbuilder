@@ -3,7 +3,7 @@ Population Builder is a web-application that allows the user to build a populati
 
 ### Demography
 
-The areas used in the application are Lower Layer Super Output Areas (LSOAs) in England and Wales and DataZones in Scotland. The population estimates in the current version are the small area population estimates for mid-2015, which are published by the Office for National Statistics and the National Records of Scotland under the Open Government License (see the results page of the application for links to the original data sources). The maps are based on Ordnance Survey geographic boundaries, also published under the Open Government License. Please note that the full mapping data is around 150MB.
+The areas used in the application are Lower Layer Super Output Areas (LSOAs) in England and Wales and DataZones in Scotland. The population estimates in the current version are the small area population estimates for mid-2016, which are published by the Office for National Statistics and the National Records of Scotland under the Open Government License (see the results page of the application for links to the original data sources). The maps are based on Ordnance Survey geographic boundaries, also published under the Open Government License. Please note that the full mapping data is around 150MB.
 
 ### Technology
 
@@ -11,7 +11,7 @@ The server side of the application is written in [Go][go], while the client side
 
 ### Development status
 
-This is the first full working version of the application. It is narrowly focussed on the central task of producing custom population estimates, but it could potentially be expanded in a number of different directions to include new data and/or new features. Certain aspects of the application could also potentially be modularised as re-usable components. This version has therefore been shared here as a starting point from which to branch out.
+This is a full working version of the application. It is narrowly focussed on the central task of producing custom population estimates, but it could potentially be expanded in a number of different directions to include new data and/or new features. Certain aspects of the application could also potentially be modularised as re-usable components. This version has therefore been shared here as a starting point from which to branch out.
 
 ### Installation
 Install the package with `go get`.
