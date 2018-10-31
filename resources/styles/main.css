@@ -22,12 +22,12 @@ body {
 	padding: 0;
 	margin-top: 1em;
 	margin-left: 0;
-}	
+}
 
 h1 {
 	margin: 0;
 	padding: 0;
-	padding-bottom: 0.2em;
+	padding-bottom: 1em;
 	text-align: center;
 	font-family: Helvetica, Arial, "Sans Serif";
 	font-size: 20pt;
@@ -41,7 +41,7 @@ h2 {
 	padding: 0;
 	padding-bottom: 0.5em;
 	font-family: Helvetica, Arial, "Sans Serif";
-	font-size: 14pt; 
+	font-size: 14pt;
 	font-weight: bold;
 	line-height: 1.4em;
 	color: #000000;
@@ -76,4 +76,3 @@ a:hover {
 	cursor: pointer;
 	color: #A090E0;
 }
-

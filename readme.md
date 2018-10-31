@@ -3,7 +3,7 @@ Population Builder is a web-application that allows the user to build a populati
 
 ### Demography
 
-The areas used in the application are Lower Layer Super Output Areas (LSOAs) in England and Wales and DataZones in Scotland. The population estimates in the current version are the small area population estimates for mid-2016, which are published by the Office for National Statistics and the National Records of Scotland under the Open Government License (see the results page of the application for links to the original data sources). The maps are based on Ordnance Survey geographic boundaries, also published under the Open Government License. Please note that the full mapping data is around 150MB.
+The areas used in the application are Lower Layer Super Output Areas (LSOAs) in England and Wales and DataZones in Scotland. The population estimates in the current version are the small area population estimates for mid-2017, which are published by the Office for National Statistics and the National Records of Scotland under the Open Government License (see the results page of the application for links to the original data sources). The maps are based on Ordnance Survey geographic boundaries, also published under the Open Government License. Please note that the full mapping data is around 150MB.
 
 ### Technology
 

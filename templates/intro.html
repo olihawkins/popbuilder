@@ -25,11 +25,11 @@
 		<div id="secondary">
 			<div id="column">
 				<h1>Population Builder</h1>
-				<p>Welcome to Population Builder, a web-app that lets you build a population estimate for a set of small areas in Great Britain.</p> 
+				<p>Welcome to Population Builder, a web-app that lets you build a population estimate for a set of small areas in Great Britain. The estimates are for the population in mid-2017.</p>
 				<p>1. The boundaries appear automatically when the map is zoomed in.</p>
 				<p>2. Click or tap the areas of interest: the estimated population is shown in the top right.</p>
 				<p>3. Click or tap &ldquo;Get data&rdquo; to see the age-distribution.</p>
-				<p>4. Turn the boundaries on and off manually using the boundary control in the bottom right.</p>			
+				<p>4. Turn the boundaries on and off manually using the boundary control in the bottom right.</p>
 				<form id="introform" method="post" style="float: left;">
 					<input type="checkbox" name="skipintro" checked />
 					<input type="hidden" name="posted" value="true" />
@@ -53,5 +53,14 @@
 	<script type="text/javascript" src="/resources/popzones/E09000028.json"></script>
 	<script type="text/javascript" src="/resources/popzones/E09000030.json"></script>
 	<script type="text/javascript" src="/resources/popzones/E09000033.json"></script>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-43692217-2"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-43692217-2');
+	</script>
 </body>
 </html>
